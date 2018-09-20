@@ -4,6 +4,8 @@
 
 gameinfo
 {
+	addeventhandlers = "MixtapeEventHandler"
+
 	// [XA] Eventually there will be one of these for each game.
 	statusbarclass = "MixtapeStatusBarDoom"
 }

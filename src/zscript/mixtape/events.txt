@@ -4,5 +4,10 @@
 
 class MixtapeEventHandler : EventHandler
 {
-	// [XA] Eventually, stuff will go here! Probably!
+	override void WorldLoaded(WorldEvent e)
+	{
+		// TODO: something more substantial here. For now, change the
+		//       'nextmap' definition on the fly, for proof-of-concept.
+		level.NextMap = "MAP30";
+	}
 }
