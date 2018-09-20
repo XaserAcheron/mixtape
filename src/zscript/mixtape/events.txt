@@ -1,0 +1,8 @@
+/*
+ * mixtape - events
+ */
+
+class MixtapeEventHandler : EventHandler
+{
+	// [XA] Eventually, stuff will go here! Probably!
+}
