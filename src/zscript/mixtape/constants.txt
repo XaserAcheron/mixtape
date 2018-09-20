@@ -1,0 +1,16 @@
+/*
+ * mixtape - constants
+ */
+
+enum ClusterFlags
+{
+	CLUSTER_HUB               =   1, // Cluster uses hub behavior
+	CLUSTER_EXITTEXTINLUMP    =   2, // Exit text is the name of a lump
+	CLUSTER_ENTERTEXTINLUMP   =   4, // Enter text is the name of a lump
+	CLUSTER_FINALEPIC         =   8, // Finale "flat" is actually a full-sized image
+	CLUSTER_LOOKUPEXITTEXT    =  16, // Exit text is the name of a language string
+	CLUSTER_LOOKUPENTERTEXT   =  32, // Enter text is the name of a language string
+	CLUSTER_LOOKUPNAME        =  64, // Name is the name of a language string
+	CLUSTER_LOOKUPCLUSTERNAME = 128, // Cluster name is the name of a language string
+	CLUSTER_ALLOWINTERMISSION = 256  // Allow intermissions between levels in a hub.
+};

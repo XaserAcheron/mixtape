@@ -10,14 +10,21 @@
 class MixtapeStatusBar
 {
 	/**
-	 * Get a formatted version of the map's mixtape alias (e.g. 'E1M1' for MAP01).
+	 * Get a formatted version of the map's "track name" (e.g. 'E1M1' for MAP01).
 	 */
-	static ui string FormatMapAlias(int baseColor)
+	static ui string FormatTrackName(int baseColor)
 	{
-		// TODO: this for real
-		return "Awesome Mix Vol. 1";
+		string trackPrefix = "";
+		string trackName = level.MapName;
+		bool ishub = level.clusterflags & CLUSTER_HUB;
+
+		if (am_showmaplabel == 1 || (am_showmaplabel == 2 && !ishub))	{
+			// TODO: get track name prefix from mixtape once it exists.
+			trackPrefix = String.Format("%s: ", "E1M1");
+		}
+		return String.Format("%s\34%c%s", trackPrefix, baseColor+65, level.LevelName);
 	}
-	
+
 	/**
 	 * Draw the mixtape automap HUD. This is the same as gzdoom.pk3's code,
 	 * with exactly one line changed. Yes, this is the recommended way of doing
@@ -63,7 +70,7 @@ class MixtapeStatusBar
 
 		// get level name from mixtape defs
 		// [XA] Behold, the only line in this entire function that's actually different. :P
-		String mapname = MixtapeStatusBar.FormatMapAlias(defaultColor);
+		String mapname = MixtapeStatusBar.FormatTrackName(defaultColor);
 
 		// prepare to draw level name
 		BrokenLines lines = SmallFont.BreakLines(mapname, int(SCREENWIDTH / scale.X));
