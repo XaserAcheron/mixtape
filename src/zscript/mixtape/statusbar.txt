@@ -1,0 +1,108 @@
+/*
+ * mixtape - status bar override
+ */
+
+/**
+ * Base status bar "class" -- actually just a container for static methods,
+ * since the actual statusbars have to be inherited from each game's bar
+ * for things to work. The tyranny of inheritance strikes again! :P
+ */
+class MixtapeStatusBar
+{
+	/**
+	 * Get a formatted version of the map's mixtape alias (e.g. 'E1M1' for MAP01).
+	 */
+	static ui string FormatMapAlias(int baseColor)
+	{
+		// TODO: this for real
+		return "Awesome Mix Vol. 1";
+	}
+	
+	/**
+	 * Draw the mixtape automap HUD. This is the same as gzdoom.pk3's code,
+	 * with exactly one line changed. Yes, this is the recommended way of doing
+	 * things like this. Maximum Welpage.
+	 */
+	static ui void DrawAutomapHUD(BaseStatusBar bar, HUDFont automapFont, int defaultColor, int highlightColor)
+	{
+		// magic
+		let scale = bar.GetHUDScale();
+		double textdist = 8. / scale.Y;
+		int height = SmallFont.GetHeight();
+		String printtext;
+		int SCREENWIDTH = screen.GetWidth();
+		bar.BeginHUD();
+		
+		// draw timer
+		let y = textdist;
+		let width = SmallFont.StringWidth("00:00:00");
+		if (am_showtime) {
+			printtext = level.TimeFormatted();
+			bar.DrawString(automapFont, level.TimeFormatted(), (-textdist-width, y), 0, defaultColor);
+			y += height;
+		}
+		if (am_showtotaltime) {
+			bar.DrawString(automapFont, level.TimeFormatted(true), (-textdist-width, y), 0, defaultColor);
+		}
+
+		// draw kills/secrets/items
+		if (!deathmatch) {
+			y = textdist;
+			if (am_showmonsters) {
+				bar.DrawString(automapFont, String.Format("%s\34%c %d/%d", Stringtable.Localize("$AM_MONSTERS"), defaultColor+65, level.killed_monsters, level.total_monsters), (textdist, y), 0, highlightColor);
+				y += height;
+			}
+			if (am_showsecrets) {
+				bar.DrawString(automapFont, String.Format("%s\34%c %d/%d", Stringtable.Localize("$AM_SECRETS"), defaultColor+65, level.found_secrets, level.total_secrets), (textdist, y), 0, highlightColor);
+				y += height;
+			}
+			if (am_showitems) {
+				bar.DrawString(automapFont, String.Format("%s\34%c %d/%d", Stringtable.Localize("$AM_ITEMS"), defaultColor+65, level.found_items, level.total_items), (textdist, y), 0, highlightColor);
+			}
+		}
+
+		// get level name from mixtape defs
+		// [XA] Behold, the only line in this entire function that's actually different. :P
+		String mapname = MixtapeStatusBar.FormatMapAlias(defaultColor);
+
+		// prepare to draw level name
+		BrokenLines lines = SmallFont.BreakLines(mapname, int(SCREENWIDTH / scale.X));
+		int numlines = lines.Count();
+		int finalwidth = int(SmallFont.StringWidth(lines.StringAt(numlines-1)) * scale.X);
+		
+		// calculate the top of the statusbar including any protrusion and transform it from status bar to screen space.
+		double tmp, hres;
+		[tmp, tmp, hres] = bar.StatusbarToRealCoords(0, 0, bar.HorizontalResolution);
+		int protrusion = bar.GetProtrusion(finalwidth / hres);
+		[tmp, tmp, tmp, hres] = bar.StatusbarToRealCoords(0, 0, 0, protrusion);
+
+		// transform the top of the status bar position from screen to HUD space (a direct transformation from status bar to HUD space does not exist.)
+		y = (bar.GetTopOfStatusBar() - hres) / scale.Y - height * numlines;
+
+		// actually draw the level name now that math has been tamed
+		for(int i = 0; i < numlines; i++) {
+			bar.DrawString(automapFont, lines.StringAt(i), (0, y), bar.DI_TEXT_ALIGN_CENTER|bar.DI_SCREEN_HCENTER|bar.DI_SCREEN_TOP, highlightColor);
+			y += height;
+		}
+	}
+}
+
+/**
+ * Game-specific statusbars.
+ * TODO: all games, not just Doom
+ */
+class MixtapeStatusBarDoom : DoomStatusBar
+{
+	private HUDFont automapFont;
+	override void Init() 
+	{
+		super.Init();
+		automapFont = HUDFont.Create("SmallFont");
+	}
+	override void DrawAutomapHUD(double ticFrac)
+	{
+		int defaultColor = Font.CR_GREY;
+		int highlightColor = (gameinfo.gametype & GAME_DoomChex) ? Font.CR_UNTRANSLATED : Font.CR_YELLOW;
+		MixtapeStatusBar.DrawAutomapHUD(self, automapFont, defaultColor, highlightColor);
+	}
+}
